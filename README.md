@@ -94,14 +94,14 @@ handle = 0x0002, char properties = 0x0a, char value handle = 0x0003, uuid = 0000
 handle = 0x0004, char properties = 0x02, char value handle = 0x0005, uuid = 00002a01-0000-1000-8000-00805f9b34fb read
 handle = 0x0006, char properties = 0x02, char value handle = 0x0007, uuid = 00002a04-0000-1000-8000-00805f9b34fb read
 
-handle = 0x000a, char properties = 0x10, char value handle = 0x000b, uuid = 6e400003-b5a3-f393-e0a9-e50e24dcca9e  notify read
+handle = 0x000a, char properties = 0x10, char value handle = 0x000b, uuid = 6e400003-b5a3-f393-e0a9-e50e24dcca9e  notify
 handle = 0x000d, char properties = 0x0c, char value handle = 0x000e, uuid = 6e400002-b5a3-f393-e0a9-e50e24dcca9e  write
 ```
    
 
 ### Protocol summary
 
-To start talking to device, you need to connect and write 0x0100 to handle 0x000c (is not listed by the device?).
+To start receiving notifications from device on handle 0x000b, you need to write 0x0100 to handle 0x000c (set [Client Characteristic Configuration](https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.descriptor.gatt.client_characteristic_configuration.xml) to 0x0001 (big-endian)). 
 This needs to be done after every reconnect.
 Gatttool doesn't allow you to know when reconnect happend. So I send it every time.
 
@@ -113,7 +113,7 @@ You will get back the answers from handle 0x000b
 Commands start with 0x55 byte, and end with 0xaa
 Second byte is a counter, you should increment it with any new request. I don't know yet what happens when you overflow
 Third byte is a command itself
- * 0x01 - happens sometimes, unknown
+ * 0x01 - request firware version
  * 0x05 - switch the kettle on to keepwarm (on with 0 temperature)
  * 0x04 - switch the kettle off
  * 0x06 - request status
@@ -159,12 +159,12 @@ Send the request again with incrementing counter. Meanwhile hold "+" key. At som
 Next time with the same key you should be able to connect from the first attempt.
 In the auth state you can issue next commands.
 
-#### Unknown command usually at start
+#### FW_VERSION command
 
 ```
    ->  55:<counter>:01:aa
 reply example
-   <-  55:<counter>:01:02:06:aa
+   <-  55:<counter>:01:02:06:aa // ver. 2.6
 ```
 
 #### BOLING AND HEATING command
